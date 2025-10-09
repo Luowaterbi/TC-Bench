@@ -1,4 +1,4 @@
-# Core dependencies for data processing pipeline
+# Core dependencies for data construction pipeline
 numpy>=1.24.0
 scipy>=1.10.0
 tqdm>=4.65.0
@@ -7,5 +7,8 @@ tqdm>=4.65.0
 datasets>=2.14.0
 huggingface-hub>=0.16.0
 
+# Evaluation dependencies (Linux only - requires g++ compiler)
+# subprocess, resource, tempfile, uuid are standard library
+
 # Standard library packages (no installation needed)
-# json, os, logging, datetime, collections, itertools, multiprocessing, random, typing
+# json, os, logging, datetime, collections, itertools, multiprocessing, random, typing, re, time

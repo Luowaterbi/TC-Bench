@@ -1,19 +1,27 @@
-# TestCase-Bench: A Binary-Matrix Perspective for Test Case Quality Evaluation
+# TC-Bench: Test Case Quality Evaluation Benchmark
+
+[![Paper](https://img.shields.io/badge/Paper-arXiv-red)](https://arxiv.org)
+[![Dataset](https://img.shields.io/badge/Dataset-HuggingFace-yellow)](https://huggingface.co/datasets)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Official repository for **"How Many Code and Test Cases Are Enough? Evaluating Test Cases Generation from a Binary-Matrix Perspective"**
 
 ## 📋 Overview
 
-TestCase-Bench (TC-Bench) is a benchmark dataset for evaluating test case quality using a binary-matrix perspective. This repository contains the complete data construction pipeline for processing competitive programming submissions into a research-ready benchmark.
+TC-Bench is a comprehensive benchmark for evaluating test case quality using a binary-matrix perspective. This repository contains:
+
+1. **Data Construction Pipeline** - Scripts to build the benchmark from competitive programming submissions
+2. **Test Case Filtering** - Validate generated test cases with correct solutions
+3. **Evaluation Scripts** - Evaluate test cases using wrong code samples
+4. **Pre-built Dataset** - Ready-to-use benchmark dataset (877 problems)
 
 ### Key Features
 
 - **877 Programming Problems** with comprehensive test coverage
-- **Binary-Matrix Analysis Framework** for test case evaluation
-- **~7,000+ Code Solutions** including both correct and incorrect implementations
+- **~7,000+ Code Solutions** including correct and incorrect implementations
+- **Binary-Matrix Analysis** for test case quality evaluation
 - **Error Pattern Analysis** via output strings (A/W patterns)
-- **Bilingual Support** (Chinese and English problem descriptions)
-- **Rich Metadata** including time/memory limits and sample test cases
+- **Automated Evaluation** with parallel execution support
 
 ## 📊 Dataset Statistics
 
@@ -25,100 +33,48 @@ Languages:                   C/C++
 Benchmark Test Samples:      877 (all for evaluation)
 ```
 
-## 🗂️ Dataset Structure
+## 🗂️ Repository Structure
 
-Each entry contains:
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `problem_id` | string | Problem identifier (English) |
-| `description` | string | Problem statement (English) |
-| `time_limit` | int | Runtime limit in milliseconds |
-| `memory_limit` | int | Memory limit in MB |
-| `sample_input` | string | Sample input test case |
-| `sample_output` | string | Sample output test case |
-| `solutions` | list | Accepted solutions with `code` and `lang` |
-| `wrong_solutions` | list | Wrong solutions with `code`, `lang`, and `output_str` |
-| `rank` | int | Number of distinct error patterns (matrix rank) |
-
-### Error Patterns (`output_str`)
-
-Each wrong solution includes an `output_str` field representing test case results:
-- `A` = Accepted (passed the test case)
-- `W` = Wrong Answer (failed the test case)
-
-Example: `"AWAAAAAAAA"` means the code failed test case 1 and passed test cases 2-10.
-
-## 🔧 Data Construction Pipeline
-
-### Scripts Overview
-
-1. **`extract.py`** - Extract and parse submissions from raw JSONL data
-   - Filters by submission status and score
-   - Handles subtask structure and test case results
-   - Deduplicates by error patterns
-
-2. **`filter.py`** - Multi-stage filtering pipeline
-   - Language filtering (C/C++ only)
-   - Deduplication by output patterns
-   - Error rate filtering (removes >80% error submissions)
-   - Adds problem metadata and constraints
-
-3. **`solve.py`** - Binary matrix analysis and optimization
-   - Transforms error patterns to binary matrices
-   - Calculates matrix rank (diversity metric)
-   - Finds basis vectors via QR decomposition
-   - Optimizes balance using Jaccard similarity
-   - Greedy iterative improvement algorithm
-
-4. **`verify.py`** - Validation of balance metrics
-   - Verifies Jaccard similarity calculations
-   - Checks consistency of balance values
-
-5. **`utils.py`** - Core utility functions
-   - `transform2matrix()` - Convert A/W strings to binary matrix
-   - `transform2aw()` - Convert matrix back to strings
-   - `get_rank()` - Calculate matrix rank
-   - `get_basis()` - Extract basis vectors
-   - `cal_jaccard_similarity()` - Compute similarity metrics
-
-6. **`prepare_hf_dataset.py`** - HuggingFace dataset conversion
-   - Removes Chinese content and intermediate fields
-   - Cleans nested structures
-   - Adjusts ranks when inconsistent
-   - Creates train/test splits
+```
+TC-Bench/
+├── data_construction/         # Dataset construction & filtering
+│   ├── extract.py            # Extract submissions from raw data
+│   ├── filter.py             # Filter and clean benchmark dataset
+│   ├── solve.py              # Binary matrix analysis & optimization
+│   ├── verify.py             # Verify balance metrics
+│   ├── utils.py              # Utility functions
+│   ├── prepare_hf_dataset.py # Convert to HuggingFace format
+│   ├── filter_testcases.py   # Filter generated test cases (with correct codes)
+│   ├── excute_tool_filter.py # Execution engine for filtering
+│   └── load_data_filter.py   # Data loader for filtering
+│
+├── evaluation/               # Evaluation scripts (test with wrong codes)
+│   ├── parallel_exe.py       # Main evaluation script
+│   ├── excute_tool_linux.py  # Execution engine for evaluation
+│   ├── load_data.py          # Data loading utilities
+│   └── get_rank_result.py    # Compute rank-based metrics
+│
+├── TestcaseBench-v29.json   # Main benchmark dataset
+├── requirements.txt          # Python dependencies
+└── README.md                # This file
+```
 
 ## 🚀 Quick Start
 
-### 1. Setup Environment
+### Installation
 
 ```bash
-# Clone the repository
 git clone https://github.com/yourusername/TC-Bench.git
 cd TC-Bench
-
-# Install dependencies
 pip install -r requirements.txt
-
-# Or using uv (faster)
-uv pip install -r requirements.txt
 ```
 
-### 2. Convert Dataset to HuggingFace Format
-
-```bash
-python prepare_hf_dataset.py --input TestcaseBench-v29.json --output ./testcase_bench_hf --preview
-```
-
-### 3. Load and Use Dataset
+### Using the Pre-built Dataset
 
 ```python
-from datasets import load_dataset, load_from_disk
+from datasets import load_dataset
 
-# Load from local disk
-dataset = load_from_disk("./testcase_bench_hf")
-
-# Or load from HuggingFace Hub (after upload)
+# Load from HuggingFace Hub
 dataset = load_dataset("your-username/testcase-bench")
 
 # Access benchmark test samples
@@ -128,85 +84,206 @@ for example in dataset['test']:
     print(f"Solutions: {len(example['solutions'])}")
     print(f"Wrong solutions: {len(example['wrong_solutions'])}")
 
-    # Access error patterns
+    # Each wrong solution has an error pattern (output_str)
     for wrong in example['wrong_solutions']:
-        print(f"  Error pattern: {wrong['output_str']}")
+        print(f"  Error pattern: {wrong['output_str']}")  # e.g., "AWAAAAAAAA"
 ```
+
+## 📖 Dataset Structure
+
+Each entry contains:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `problem_id` | string | Problem identifier (English) |
+| `description` | string | Problem statement (English) |
+| `time_limit` | int | Runtime limit (ms) |
+| `memory_limit` | int | Memory limit (MB) |
+| `sample_input` | string | Sample input test case |
+| `sample_output` | string | Sample output test case |
+| `solutions` | list | Accepted solutions: `[{code, lang}, ...]` |
+| `wrong_solutions` | list | Wrong solutions: `[{code, lang, output_str}, ...]` |
+| `rank` | int | Number of distinct error patterns |
+
+### Error Patterns (`output_str`)
+
+- `A` = Accepted (passed the test case)
+- `W` = Wrong Answer (failed the test case)
+
+Example: `"AWAAAAAAAA"` = failed test 1, passed tests 2-10
+
+## 🔧 Benchmark Construction Pipeline
+
+Build the TC-Bench dataset from raw submissions:
+
+### 1. Extract (`extract.py`)
+Extract and parse submissions from JSONL files
+```bash
+cd data_construction
+python extract.py
+```
+
+### 2. Filter (`filter.py`)
+Multi-stage filtering: language, deduplication, error rate
+```bash
+python filter.py
+```
+
+### 3. Solve (`solve.py`)
+Binary matrix analysis and balance optimization
+```bash
+python solve.py
+```
+
+### 4. Verify (`verify.py`)
+Validate balance metrics
+```bash
+python verify.py
+```
+
+### 5. Convert to HuggingFace (`prepare_hf_dataset.py`)
+```bash
+python prepare_hf_dataset.py --input ../TestcaseBench-v29.json --output ../testcase_bench_hf
+```
+
+## 🧮 Evaluate Generated Test Cases
+
+Use TC-Bench to evaluate your generated test cases in 3 steps:
+
+### Step 1: Filter Generated Test Cases
+
+Validate generated test cases using correct reference solutions (removes invalid test cases):
+
+```bash
+cd data_construction
+
+python filter_testcases.py \
+    --testcase_alg your_algorithm \
+    --model_name your_model \
+    --base_dir "/path/to/generated/testcases" \
+    --cpu 50 \
+    --data_path "../TestcaseBench-v29.json"
+```
+
+**Input Format:** Generated test cases should be JSONL files at:
+```
+{base_dir}/{model_name}/{testcase_alg}/tests-{problem_id}.jsonl
+```
+
+Each line:
+```json
+{"input": "test input", "output": "expected output"}
+```
+
+**Output:** Filtered test cases saved to:
+```
+save_tests_{model_name}-filter/{testcase_alg}/tests-{problem_id}.jsonl
+```
+
+### Step 2: Evaluate Against Wrong Code
+
+Test filtered cases against wrong code samples to measure detection capability:
+
+```bash
+cd ../evaluation
+
+python parallel_exe.py \
+    --testcase_alg your_algorithm \
+    --model_name your_model \
+    --prefix_url "../data_construction/" \
+    --cpu 50 \
+    --data_path "../TestcaseBench-v29.json"
+```
+
+**Output:** Results saved to `ALLmode_results/`:
+- `tcb-{model}-{alg}-{alg}.json` - Raw execution results
+- `tcb-{model}-{alg}-{alg}-all.json` - Aggregated results by problem
+
+### Step 3: Compute Metrics
+
+Generate evaluation metrics at different rank multipliers:
+
+```bash
+python get_rank_result.py
+```
+
+Edit `get_rank_result.py` to configure models/algorithms:
+```python
+test_als = ["your_algorithm"]
+model_name_list = ["your_model"]
+```
+
+**Output:** Markdown tables in `rank_md/`:
+```
+rank_md/rank_result-{model}-{alg}-main_result.md
+```
+
+### Evaluation Metrics
+
+| Metric | Description |
+|--------|-------------|
+| **Hack Rate** | % of wrong codes detected by generated tests |
+| **Rank Multipliers** | Test with k×rank cases (k=1,2,3,4,5) |
+| **AC/CE/WA/RE/TLE/MLE** | Status distribution |
+
+**Status Codes:**
+- **AC**: Accepted
+- **CE**: Compilation Error
+- **WA**: Wrong Answer
+- **RE**: Runtime Error
+- **TLE**: Time Limit Exceeded
+- **MLE**: Memory Limit Exceeded
 
 ## 📖 Methodology
 
 ### Binary-Matrix Perspective
 
-The benchmark uses a novel binary-matrix approach to evaluate test case quality:
+1. **Error Pattern Encoding**
+   - Wrong code's test results → binary vector
+   - `W` (Wrong) → 1, `A` (Accepted) → 0
 
-1. **Error Pattern Encoding**: Each wrong code's test results form a binary vector
-   - `W` (Wrong) → 1
-   - `A` (Accepted) → 0
-
-2. **Matrix Construction**: Stack vectors to form a binary matrix where:
+2. **Matrix Construction**
    - Rows = wrong code samples
    - Columns = test cases
-   - Value = whether the code failed that test case
+   - Entry = whether code failed that test
 
-3. **Rank Analysis**: Matrix rank indicates diversity of error patterns
-   - Higher rank = more distinct failure modes captured
-   - Rank equals number of linearly independent error patterns
+3. **Rank Analysis**
+   - Matrix rank = # of distinct error patterns
+   - Higher rank = more diverse failure modes
+   - Rank = # of linearly independent patterns
 
-4. **Balance Optimization**: Use Jaccard similarity to find balanced test suites
-   - Minimize overlap between test case detection patterns
+4. **Balance Optimization**
+   - Use Jaccard similarity to minimize test overlap
    - Greedy iterative swap algorithm
 
-### Key Metrics
+### Example
 
-- **Rank**: Number of distinct error patterns (diversity)
-- **Balance**: Distribution quality of test case coverage
-- **Coverage**: Ability to distinguish different failure modes
+```
+Test Cases:    T1  T2  T3  T4
+WrongCode1:    W   A   A   A    →  [1, 0, 0, 0]
+WrongCode2:    A   W   A   A    →  [0, 1, 0, 0]
+WrongCode3:    A   A   W   A    →  [0, 0, 1, 0]
 
-## 📦 HuggingFace Upload Instructions
+Matrix Rank = 3 (3 linearly independent patterns)
+```
 
-### Option 1: Using Web UI
-
-1. Go to https://huggingface.co/new-dataset
-2. Create a new dataset repository
-3. Upload `testcase_bench_hf_cleaned.json` via the Files tab
-4. Add a dataset card (README.md) describing the benchmark
-
-### Option 2: Using Python API
+## 📦 Upload to HuggingFace
 
 ```bash
-# Install dependencies
-pip install datasets huggingface_hub
+cd data_construction
+python prepare_hf_dataset.py
 
-# Run upload script
-python3 << EOF
+# Upload
+python << EOF
 from huggingface_hub import login
 from datasets import load_from_disk
-
-# Login (you'll need a HuggingFace token)
 login()
-
-# Load and push to hub
-dataset = load_from_disk("./testcase_bench_hf")
+dataset = load_from_disk("../testcase_bench_hf")
 dataset.push_to_hub("your-username/testcase-bench")
 EOF
 ```
 
-### Option 3: Using CLI
-
-```bash
-# Install HuggingFace CLI
-pip install huggingface_hub
-
-# Login to HuggingFace
-huggingface-cli login
-
-# Upload dataset
-huggingface-cli upload your-username/testcase-bench ./testcase_bench_hf --repo-type=dataset
-```
-
 ## 🤝 Citation
-
-If you use TestCase-Bench in your research, please cite:
 
 ```bibtex
 @article{tcbench2025,
@@ -217,21 +294,20 @@ If you use TestCase-Bench in your research, please cite:
 }
 ```
 
-## 📝 License
+## 📝 System Requirements
 
-This project is licensed under the MIT License.
+- **Data Construction**: Any OS with Python 3.8+
+- **Filtering & Evaluation**: Linux with g++ compiler (C++11/14/17/20)
 
-## 🔮 Future Work
+## 🔮 Roadmap
 
-- Evaluation scripts and baseline models
-- Automated test case generation tools
-- Extended language support beyond C/C++
-- Interactive analysis dashboard
+- [x] Data construction pipeline
+- [x] HuggingFace dataset conversion
+- [x] Test case filtering framework
+- [x] Evaluation framework
+- [ ] Baseline test case generation models
+- [ ] Multi-language support
 
 ## 📧 Contact
 
 For questions or issues, please open an issue on GitHub.
-
----
-
-**Note**: This repository contains the data construction pipeline. Evaluation code and baselines will be released in future updates.
