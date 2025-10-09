@@ -1,0 +1,11 @@
+# Core dependencies for data processing pipeline
+numpy>=1.24.0
+scipy>=1.10.0
+tqdm>=4.65.0
+
+# HuggingFace dataset conversion
+datasets>=2.14.0
+huggingface-hub>=0.16.0
+
+# Standard library packages (no installation needed)
+# json, os, logging, datetime, collections, itertools, multiprocessing, random, typing
