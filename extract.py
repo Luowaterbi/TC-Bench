@@ -8,11 +8,8 @@ def extract_jsonl(raw_dir="/data/OJ/submission",
                   save_dir="/data/OJ/tcb/", 
                   correct_save_dir="/data/OJ/coc/"):
     pro2sub = defaultdict(list)
-    # 每个问题的正确的solution
     correct = defaultdict(list)
-    # 每个问题总共有多少solution
     all_pro_cnt = defaultdict(int)
-    # 每个问题有多少个testcases
     pro2testcases_count = defaultdict(int)
     output_str_map = {}
 
@@ -25,14 +22,6 @@ def extract_jsonl(raw_dir="/data/OJ/submission",
             lines = f.readlines()
         for line in tqdm(lines):
             d = json.loads(line)
-            # loj的d["progress"]["testcaseResult"]是包括public test case和private test case的执行结果的
-            # public test case的hash存在d["progress"]["samples"]里面，len(d["progress"]["samples"])就是public test case的数量
-            # loj是区分子任务（subtasks）和测试点（testcases）的，只有一个subtasks的在网页上才会显示出所有testcases
-            # 但是当有多个subtasks时，只显示subtasks，需要点开才能看到每个testcases
-            # 并且每个subtasks都会执行，但是一旦遇到错误的testcases剩下的就会跳过不执行了
-            # 当只有一个subtask时，就所有的test cases都会被执行
-            # d["progress"]["subtasks"]是一个list，存储所有的subtasks，每个subtasks的private test case的hash存在d["progress"]["subtasks"]["testcases"]里面
-            # 被跳过的test case，对应存储的位置是一个空的dict
             if "meta" not in d:
                 # print(f"meta not in d: {json.dumps(d, indent=4)}")
                 continue
