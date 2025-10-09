@@ -70,24 +70,6 @@ def filter_too_wrong_wrong_code():
 # filter_too_wrong_wrong_code()
 
 
-def add_name():
-    problem_names_mapping = json.load(open("../LOJ/problem_names.json", "r"))
-    pro = "#43064. 爱上火车"
-    pro = pro.split(".", 1)[-1].replace(" ", "").replace("/", "").strip()
-    problem_names_mapping[pro] = "#6914.「梦熊省选难度挑战赛2023」爱上火车"
-    pro = "#43063. 树莓立方体"
-    pro = pro.split(".", 1)[-1].replace(" ", "").replace("/", "").strip()
-    problem_names_mapping[pro] = "#6913.「梦熊省选难度挑战赛2023」树莓立方体"
-    pro = "#43062. 奇迹之夜"
-    pro = pro.split(".", 1)[-1].replace(" ", "").replace("/", "").strip()
-    problem_names_mapping[pro] = "#6912.「梦熊省选难度挑战赛2023」奇迹之夜"
-    pro = "#6214. 「美团 CodeM 决赛」jump"
-    pro = pro.split(".", 1)[-1].replace(" ", "").replace("/", "").strip()
-    problem_names_mapping[pro] = "#6214.「美团CodeM决赛」jump"
-    json.dump(problem_names_mapping, open("data/problem_names.json", "w"), indent=4)
-# add_name()
-
-
 def add_info():
     problem_names_mapping = json.load(open("data/problem_names.json", "r"))
 
@@ -177,7 +159,6 @@ def look_invalid():
         wc = infos["wc"]
         matrix = transform2matrix(wc)
         
-        # 检查全0行
         zero_rows = np.all(matrix == 0, axis=1)
         if np.any(zero_rows):
             zero_indices = np.where(zero_rows)[0]

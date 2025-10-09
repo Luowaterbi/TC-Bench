@@ -12,9 +12,6 @@ def transform2matrix(s:List[str]) -> np.ndarray:
     return matrix_np
 
 def transform2aw(matrix:np.ndarray) -> List[str]:
-    """
-    将矩阵转换为字符串列表，'1' 替换为 'W'，'0' 替换为 'A'
-    """
     aw_list = []
     for row in matrix:
         aw_str = ''.join(['W' if c == 1 else 'A' for c in row])
