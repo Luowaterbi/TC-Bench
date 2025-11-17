@@ -1,7 +1,7 @@
 # TC-Bench: Test Case Quality Evaluation Benchmark
 
-[![Paper](https://img.shields.io/badge/Paper-arXiv-red)](https://arxiv.org)
-[![Dataset](https://img.shields.io/badge/Dataset-HuggingFace-yellow)](https://huggingface.co/datasets)
+[![Paper](https://img.shields.io/badge/Paper-arXiv-red)](https://arxiv.org/abs/2510.08720)
+[![Dataset](https://img.shields.io/badge/Dataset-HuggingFace-yellow)](https://huggingface.co/datasets/Luoberta/TC-Bench)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Official repository for **"How Many Code and Test Cases Are Enough? Evaluating Test Cases Generation from a Binary-Matrix Perspective"**
@@ -75,7 +75,7 @@ pip install -r requirements.txt
 from datasets import load_dataset
 
 # Load from HuggingFace Hub
-dataset = load_dataset("your-username/testcase-bench")
+dataset = load_dataset("Luoberta/TC-Bench")
 
 # Access benchmark test samples
 for example in dataset['test']:
@@ -279,18 +279,21 @@ from huggingface_hub import login
 from datasets import load_from_disk
 login()
 dataset = load_from_disk("../testcase_bench_hf")
-dataset.push_to_hub("your-username/testcase-bench")
+dataset.push_to_hub("Luoberta/TC-Bench")
 EOF
 ```
 
 ## 🤝 Citation
 
 ```bibtex
-@article{tcbench2025,
+@misc{luo2025codetestcasesenough,
   title={How Many Code and Test Cases Are Enough? Evaluating Test Cases Generation from a Binary-Matrix Perspective},
-  author={Your Name et al.},
-  journal={arXiv preprint arXiv:XXXX.XXXXX},
-  year={2025}
+  author={Xianzhen Luo and Jinyang Huang and Wenzhen Zheng and Qingfu Zhu and Mingzheng Xu and Yiheng Xu and Yuantao Fan and Libo Qin and Wanxiang Che},
+  year={2025},
+  eprint={2510.08720},
+  archivePrefix={arXiv},
+  primaryClass={cs.CL},
+  url={https://arxiv.org/abs/2510.08720}
 }
 ```
 
