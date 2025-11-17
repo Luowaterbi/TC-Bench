@@ -286,11 +286,14 @@ EOF
 ## 🤝 Citation
 
 ```bibtex
-@article{tcbench2025,
+@misc{luo2025codetestcasesenough,
   title={How Many Code and Test Cases Are Enough? Evaluating Test Cases Generation from a Binary-Matrix Perspective},
-  author={Your Name et al.},
-  journal={arXiv preprint arXiv:2510.08720},
-  year={2025}
+  author={Xianzhen Luo and Jinyang Huang and Wenzhen Zheng and Qingfu Zhu and Mingzheng Xu and Yiheng Xu and Yuantao Fan and Libo Qin and Wanxiang Che},
+  year={2025},
+  eprint={2510.08720},
+  archivePrefix={arXiv},
+  primaryClass={cs.CL},
+  url={https://arxiv.org/abs/2510.08720}
 }
 ```
 
